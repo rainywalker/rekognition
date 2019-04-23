@@ -1,5 +1,10 @@
 <template>
     <v-app>
+        <h1>AWS Rekonition Image Detect Test...</h1>
+        <ul>
+            <li><router-link to="/">Detect Image</router-link> </li>
+            <li><router-link to="/moderation"> Detect Moderation</router-link> </li>
+        </ul>
         <router-view></router-view>
 
     </v-app>
