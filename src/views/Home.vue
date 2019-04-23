@@ -19,23 +19,20 @@
     })
     export default class Home extends Vue {
         private file : any = null;
-        private bucketName : string = 'rekonition-img';
-        private bucketRegion : string = 'ap-northeast-2';
-        private IdentiryPoolId : string = 'ap-northeast-2:2d3bcfc3-d348-4ebe-b7dc-c08e0a0808e8';
 
 
         uploadFile() : void {
             AWS.config.update({
-                region : this.bucketRegion,
+                region : this.$store.state.bucketRegion,
                 credentials : new AWS.CognitoIdentityCredentials({
-                    IdentityPoolId : this.IdentiryPoolId
+                    IdentityPoolId : this.$store.state.IdentiryPoolId
                 })
             });
 
             const s3 : any = new AWS.S3({
                 apiVersion : '2006-03-01',
                 params : {
-                    Bucket : this.bucketName
+                    Bucket : this.$store.state.bucketName
                 }
             });
 
