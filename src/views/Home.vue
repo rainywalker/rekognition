@@ -3,10 +3,7 @@
         <p><input type="file" id="file" ref="file" @change="handleFile"></p>
         <p><button type="button" class="btn_upload" @click="uploadFile">upload</button></p>
 
-
-
         <div class="imgArea">
-
             <ul class="masonry">
                 <li class="item" v-for="(item,i) in $store.state.items" :key="i">
                     <p><img :src="imgSrc(item.p_key)" alt=""></p>
@@ -16,11 +13,8 @@
                         </li>
                     </ul>
                 </li>
-
             </ul>
         </div>
-
-
     </div>
 </template>
 
