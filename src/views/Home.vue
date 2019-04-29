@@ -1,24 +1,25 @@
 <template>
     <div class="home">
         <p><input type="file" id="file" ref="file" @change="handleFile"></p>
-        <p><button type="button" @click="uploadFile">upload</button></p>
-        {{$store.state.items}}
-        <v-flex xs12 sm6 offset-sm3>
-            <v-card v-for="(item,i) in $store.state.items" :key="i">
+        <p><button type="button" class="btn_upload" @click="uploadFile">upload</button></p>
 
-                <v-img
-                        :src="imgSrc(item.p_key.S)"
-                        aspect-ratio="2.75"
-                ></v-img>
 
-                <v-card-title primary-title>
-                    <div>
-                        <h3 class="headline mb-0">{{item.p_key.S}}</h3>
-                        <div v-for="(elem,idx) in item.tag.L" :key="idx">{{elem.M.name.S}} </div>
-                    </div>
-                </v-card-title>
-            </v-card>
-        </v-flex>
+
+        <div class="imgArea">
+
+            <ul class="masonry">
+                <li class="item" v-for="(item,i) in $store.state.items" :key="i">
+                    <p><img :src="imgSrc(item.p_key)" alt=""></p>
+                    <ul class="tags">
+                        <li v-for="(elem,idx) in item.tag" :key="idx">
+                            {{elem.name}}
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+
 
     </div>
 </template>
@@ -59,4 +60,29 @@
 
 <style lang="scss">
 h1{text-align: center;margin-top:40px}
+li{list-style: none}
+.btn_upload{background: dodgerblue;color:#fff;padding:5px 10px;border-radius: 10px}
+.imgArea{width:980px;margin:0 auto;}
+.masonry { /* Masonry container */
+    column-count: 4;
+    column-gap: 1em;
+    .item {
+        display: inline-block;
+        margin: 0 0 1em;
+        width: 100%;
+        border:1px solid #ddd;
+        .tags{
+            overflow:hidden;margin:0;padding:0 10px 10px;
+            li{
+                float:left;background: darkslategray;color:#fff;padding:2px 5px;
+                margin-right:5px;border-radius: 10px;margin-top:5px;
+            }
+        }
+        img{
+            max-width: 100%;
+        }
+    }
+}
+
+
 </style>

@@ -1,6 +1,6 @@
 <template>
     <div>
-        Moderation
+        Moderation asdf
     </div>
 </template>
 

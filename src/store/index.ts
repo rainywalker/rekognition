@@ -5,7 +5,6 @@ const AWS = require('aws-sdk');
 Vue.use(Vuex);
 
 
-
 export default new Vuex.Store({
     state: {
         bucketName : 'rekonition-img',
@@ -41,6 +40,7 @@ export default new Vuex.Store({
                 if (err) throw err
 
                 else {
+                    console.log(data)
                     dispatch('putDB',{res,name : data.Key})
 
                 }
@@ -48,19 +48,21 @@ export default new Vuex.Store({
             })
         },
         getDB({commit}) : void {
-              const docClient = new AWS.DynamoDB()
+              // const docClient = new AWS.DynamoDB();
+              const docClient = new AWS.DynamoDB.DocumentClient();
+
 
               const params = {
                   TableName : 'rekognitionTable',
 
-              }
+              };
             docClient.scan(params, (err : any, data : any) => {
 
                 commit('getDB',data)
             })
         },
-        putDB({commit}, res : any) : void {
-            const items : Array<object> = res.res.Labels.map((v:any) => {
+        putDB({commit, dispatch}, res : any) : void {
+            const items : Array <object> = res.res.Labels.map((v:any) => {
                 return {
                     name : v.Name,
                     confidence : v.Confidence
@@ -73,13 +75,14 @@ export default new Vuex.Store({
                     tag : items
                 },
                 TableName : 'rekognitionTable'
-            }
+            };
 
             const docClient = new AWS.DynamoDB.DocumentClient();
             docClient.put(params, (err : any, data : any) => {
                 if (err) throw err;
                 else {
                     console.log(data)
+                    dispatch('getDB')
                 }
             })
         },
