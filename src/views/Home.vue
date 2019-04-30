@@ -22,7 +22,6 @@
 
     import {Component, Vue} from 'vue-property-decorator';
     import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
-    const AWS = require('aws-sdk');
 
     @Component({
         components: {
@@ -52,7 +51,7 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 h1{text-align: center;margin-top:40px}
 li{list-style: none}
 .btn_upload{background: dodgerblue;color:#fff;padding:5px 10px;border-radius: 10px}

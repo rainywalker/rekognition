@@ -40,8 +40,9 @@ export default new Vuex.Store({
                 if (err) throw err
 
                 else {
-                    console.log(data)
+
                     dispatch('putDB',{res,name : data.Key})
+
 
                 }
 
@@ -68,7 +69,7 @@ export default new Vuex.Store({
                     confidence : v.Confidence
                 }
             });
-
+            console.log(res)
             const params = {
                 Item : {
                     p_key : res.name,
@@ -82,7 +83,9 @@ export default new Vuex.Store({
                 if (err) throw err;
                 else {
                     console.log(data)
-                    dispatch('getDB')
+                    // dispatch('getDB')
+                    commit('pushItem',params.Item)
+
                 }
             })
         },
@@ -111,54 +114,27 @@ export default new Vuex.Store({
         getDB(state, obj) : void {
             state.items = obj.Items
         },
+        pushItem(state : any, obj : any) : void {
+            state.items.unshift(obj)
+        },
         AWS_INIT(state) : void {
 
-            const s3 = new AWS.S3();
-            s3.listObjects({
-                Bucket : state.bucketName
-            }, (err : any, data : any) => {
-                if (err) {
-                    console.log(err)
-                }
-                else {
-
-                    data.Contents.forEach((v :any) => {
-
-                        console.log(`https://${state.bucketName}.s3.amazonaws.com/${v.Key}`)
-                    })
-
-                }
-            })
-
-            // const ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
-            //
-            // ddb.listTables({Limit:10}, (err :any, data : any) => {
-            //     if (err) {
-            //         console.log("Error", err.code);
-            //     } else {
-            //         console.log(data.TableNames[1])
-            //
-            //
-            //     }
-            // });
-            // ddb.describeTable({
-            //     TableName : 'sfn-workshop-setup-ImageMetadataDDBTable-1MVK8ZVISB067'
-            // }, (error : any, res : any) => {
-            //     console.log(res)
-            // })
-            // const params = {
-            //    TableName : 'sfn-workshop-setup-ImageMetadataDDBTable-1MVK8ZVISB067',
-            //
-            // }
-            // ddb.scan(params, (err:any, data:any) => {
+            // const s3 = new AWS.S3();
+            // s3.listObjects({
+            //     Bucket : state.bucketName
+            // }, (err : any, data : any) => {
             //     if (err) {
             //         console.log(err)
             //     }
             //     else {
-            //         console.log(data)
+            //
+            //         data.Contents.forEach((v :any) => {
+            //             console.log(v)
+            //             // console.log(`https://${state.bucketName}.s3.amazonaws.com/${v.Key}`)
+            //         })
+            //
             //     }
             // })
-
         }
     },
 })
