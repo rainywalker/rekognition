@@ -3,14 +3,26 @@
         <p><input type="file" id="file" ref="file" @change="handleFile"></p>
         <p><button type="button" class="btn_upload" @click="uploadFile">upload</button></p>
         <div class="imgArea">
+
             <ul>
-                <li>
+                <li v-for="(item,i) in boundingBox" :key="i">
                     <div class="card">
                         <figure>
-                            <p class="placeholder"><img src="" alt=""></p>
-                            <figcaption>sdfsdf</figcaption>
+                            <p class="placeholder"><img :src="'https://rekonition-img.s3.amazonaws.com/'+item.d_key" alt=""></p>
+                            <figcaption>{{item.d_key}}</figcaption>
                         </figure>
                     </div>
+
+
+                        <div v-for="(v,idx) in item.dimension" :key="idx">
+                            {{v.detectText}}
+                            <span style="position:absolute;border:1px solid red;display: inline-block"
+                                :style="{width:v.width + 'px',height:v.height + 'px',top:v.top + 'px',left:v.left + 'px'}"
+                            ></span>
+                        </div>
+
+
+
                 </li>
             </ul>
         </div>
@@ -29,7 +41,7 @@
     import {Component, Vue} from 'vue-property-decorator';
 
     interface lineShape {
-        detectText : string,
+        detectText? : string,
         width : number,
         height:number,
         top : number,
@@ -42,6 +54,52 @@
         private imgDimensions : any = {
             width : null,
             height: null,
+        }
+        private dataList : Array <object> = [];
+        private boundingBox : any = []
+
+
+        private created() {
+            const s3 = new AWS.S3();
+            // s3.listObjects({
+            //     Bucket : 'rekonition-img',
+            //     Prefix : 'detectText/'
+            // }, (err : any, data : any) => {
+            //     if (err) {
+            //         console.log(err)
+            //     }
+            //     else {
+            //         data.Contents.forEach((v :any) => {
+            //
+            //             this.dataList.push({
+            //                 uri : `https://rekonition-img.s3.amazonaws.com/${v.Key}`
+            //             })
+            //
+            //             // console.log(`https://${state.bucketName}.s3.amazonaws.com/${v.Key}`)
+            //         })
+            //         this.dataList.shift();
+            //
+            //     }
+            // });
+
+            this.getDB();
+
+
+
+        }
+        getDB() {
+            const docClient = new AWS.DynamoDB.DocumentClient();
+            const params = {
+                TableName : 'rekogDetectText',
+
+            };
+            docClient.scan(params, (err : any, data : any) => {
+                this.boundingBox = [...data.Items]
+                console.log(data.Items)
+
+
+            })
+
         }
         getImageDimension() {
             const reader = new FileReader();
@@ -60,6 +118,71 @@
             this.file = e.target.files[0];
             this.getImageDimension();
         }
+        putDB(arg:Array<object>, key : string) {
+
+            const params = {
+                Item : {
+                    d_key : key,
+                    dimension : arg
+
+                },
+                TableName : 'rekogDetectText'
+            };
+
+            const docClient = new AWS.DynamoDB.DocumentClient();
+            docClient.put(params, (err : any, data : any) => {
+                if (err) throw err;
+                else {
+                    console.log(data)
+                    this.getDB()
+
+
+
+                }
+            })
+
+
+        }
+        rekognitioner(data : any) {
+            const rekognition : any = new AWS.Rekognition();
+
+            rekognition.detectText({
+                Image : {
+                    S3Object : {
+                        Bucket : 'rekonition-img',
+                        Name : data.Key
+                    }
+                }
+            }, (err : any, res : any) => {
+                if (err) throw err
+
+                else {
+                    console.log(res)
+                    const lines : Array <object> = res.TextDetections.filter((v : any) => v.Type === 'LINE');
+                    const words : Array <object> = res.TextDetections.filter((v : any) => v.Type === 'WORD');
+
+                    const objectDimensions = lines.map((v:any) => {
+
+                        const returnObj : lineShape = {
+                            detectText : v.DetectedText,
+                            width : v.Geometry.BoundingBox.Width * this.imgDimensions.width,
+                            height : v.Geometry.BoundingBox.Height * this.imgDimensions.height,
+                            top : v.Geometry.BoundingBox.Top *  this.imgDimensions.height,
+                            left: v.Geometry.BoundingBox.Left * this.imgDimensions.width
+                        };
+                        return returnObj
+                    });
+                    this.putDB(objectDimensions, data.Key)
+                    console.log(objectDimensions)
+
+
+
+
+
+                }
+
+            })
+        }
         uploadFile() {
             const s3 : any = new AWS.S3({
                 apiVersion : '2006-03-01',
@@ -77,46 +200,13 @@
                 if (err) {
                     throw err
                 }
-
+                this.rekognitioner(data)
+                this.dataList.unshift({
+                    uri : data.Location,
+                });
                 console.log('s3 upload success',data)
 
-                const rekognition : any = new AWS.Rekognition();
 
-                rekognition.detectText({
-                    Image : {
-                        S3Object : {
-                            Bucket : 'rekonition-img',
-                            Name : data.Key
-                        }
-                    }
-                }, (err : any, res : any) => {
-                    if (err) throw err
-
-                    else {
-                        console.log(res)
-                        const lines : Array <object> = res.TextDetections.filter((v : any) => v.Type === 'LINE');
-                        const words : Array <object> = res.TextDetections.filter((v : any) => v.Type === 'WORD');
-
-                        const objectDimensions = lines.map((v:any) => {
-
-                            const returnObj : lineShape = {
-                                detectText : v.DetectedText,
-                                width : v.Geometry.BoundingBox.Width * this.imgDimensions.width,
-                                height : v.Geometry.BoundingBox.Height * this.imgDimensions.height,
-                                top : res.TextDetections[0].Geometry.BoundingBox.Top *  this.imgDimensions.height,
-                                left: res.TextDetections[0].Geometry.BoundingBox.Left * this.imgDimensions.width
-                            };
-                            return returnObj
-                        });
-
-
-
-                        console.log(objectDimensions)
-
-
-                    }
-
-                })
             })
         }
 
