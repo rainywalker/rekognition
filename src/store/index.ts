@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex, {StoreOptions} from 'vuex';
 import {imageDetect} from './modules/detectImage'
+import {textDetect} from './modules/detectText'
 import { RootState } from '@/store/interface';
 import {AWS} from './AWS'
 
@@ -15,7 +16,8 @@ export default new Vuex.Store<RootState>({
     },
     getters : {},
     modules: {
-        imageDetect
+        imageDetect,
+        textDetect
     },
     mutations: {
 

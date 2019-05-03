@@ -9,14 +9,12 @@
     import {Component, Vue} from 'vue-property-decorator';
     import ImageTag from '@/components/ImageTag.vue'; // @ is an alias to /src
 
-    const namespace: string = 'imageDetect';
-
     @Component({
         components: {
             ImageTag,
         },
     })
-    export default class Home extends Vue {
+    export default class imgDetect extends Vue {
     }
 </script>
 
