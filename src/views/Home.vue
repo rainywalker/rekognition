@@ -5,7 +5,7 @@
 
         <div class="imgArea">
             <ul class="masonry">
-                <li class="item" v-for="(item,i) in $store.state.items" :key="i">
+                <li class="item" v-for="(item,i) in getItems" :key="i">
                     <p><img :src="imgSrc(item.p_key)" alt=""></p>
                     <ul class="tags">
                         <li v-for="(elem,idx) in item.tag" :key="idx">
@@ -21,7 +21,12 @@
 <script lang="ts">
 
     import {Component, Vue} from 'vue-property-decorator';
+    import {State, Action, Getter} from 'vuex-class';
+    import {ImgDetectState} from '@/store/modules/detectImage/types';
+
     import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+
+    const namespace: string = 'imageDetect';
 
     @Component({
         components: {
@@ -30,17 +35,27 @@
     })
     export default class Home extends Vue {
         private file : any = null;
+        @Action('AWS_INIT') AWS_INIT : any;
+        @Action('s3Upload', {namespace}) s3Upload : any;
+        @Action('getDB', {namespace}) getDB : any;
+
+        @Getter('getItems', {namespace}) getItems : any;
+
 
         private created() {
-            this.$store.dispatch('AWS_INIT');
-            this.$store.dispatch('getDB')
+            // this.$store.dispatch('AWS_INIT');
+            // this.$store.dispatch('getDB')
+
+            this.AWS_INIT()
+            this.getDB()
         }
         imgSrc(str : string) : string {
             return `https://rekonition-img.s3.amazonaws.com/${str}`
         }
         uploadFile() : void {
-            this.$store.dispatch('s3Upload', this.file)
+            // this.$store.dispatch('s3Upload', this.file)
 
+            this.s3Upload(this.file)
         }
         handleFile(e : any) : void {
             this.file = e.target.files[0];

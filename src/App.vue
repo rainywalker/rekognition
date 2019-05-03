@@ -1,6 +1,7 @@
 <template>
     <v-app>
-        <h1>AWS Rekonition Image Detect Test...</h1>
+        <h1>AWS Rekonition Test (드루와~)</h1>
+        <strong>업로드한 이미지들은 언제든지 삭제될수 있습니다</strong>
         <ul>
             <li><router-link to="/">Detect Image</router-link> </li>
             <li><router-link to="/detectText"> Detect Text</router-link> </li>

@@ -3,26 +3,30 @@
         <p><input type="file" id="file" ref="file" @change="handleFile"></p>
         <p><button type="button" class="btn_upload" @click="uploadFile">upload</button></p>
         <div class="imgArea">
-
-            <ul>
-                <li v-for="(item,i) in boundingBox" :key="i">
-                    <div class="card">
-                        <figure>
-                            <p class="placeholder"><img :src="'https://rekonition-img.s3.amazonaws.com/'+item.d_key" alt=""></p>
-                            <figcaption>{{item.d_key}}</figcaption>
-                        </figure>
-                    </div>
-
-
-                        <div v-for="(v,idx) in item.dimension" :key="idx">
-                            {{v.detectText}}
-                            <span style="position:absolute;border:1px solid red;display: inline-block"
-                                :style="{width:v.width + 'px',height:v.height + 'px',top:v.top + 'px',left:v.left + 'px'}"
-                            ></span>
+            <ul class="imgList">
+                <li class="listObj" v-for="(item,i) in dataList" :key="i">
+                    <div class="imgPreview">
+                        <div class="card">
+                            <figure>
+                                <span class="placeholder"><img :src="'https://rekonition-img.s3.amazonaws.com/'+item.d_key" alt=""></span>
+                            </figure>
                         </div>
-
-
-
+                        <span v-for="(v,idx) in item.dimension" :key="idx">
+                            <em  class="boundingBox"
+                                :style="{width:v.width + '%',height:v.height + '%',top:v.top + '%',left:v.left + '%'}"
+                            ></em>
+                        </span>
+                    </div>
+                    <div class="cardDesc">
+                        <ul>
+                            <li v-for="(v,idx) in item.extractText" :key="idx">
+                                <dl class="txInfo">
+                                    <dt><strong>{{v.DetectedText}}</strong></dt>
+                                    <dd>{{v.Confidence.toFixed(2)}}%</dd>
+                                </dl>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -55,36 +59,11 @@
             width : null,
             height: null,
         }
-        private dataList : Array <object> = [];
-        private boundingBox : any = []
-
+        private dataList : Array<object> = [];
 
         private created() {
-            const s3 = new AWS.S3();
-            // s3.listObjects({
-            //     Bucket : 'rekonition-img',
-            //     Prefix : 'detectText/'
-            // }, (err : any, data : any) => {
-            //     if (err) {
-            //         console.log(err)
-            //     }
-            //     else {
-            //         data.Contents.forEach((v :any) => {
-            //
-            //             this.dataList.push({
-            //                 uri : `https://rekonition-img.s3.amazonaws.com/${v.Key}`
-            //             })
-            //
-            //             // console.log(`https://${state.bucketName}.s3.amazonaws.com/${v.Key}`)
-            //         })
-            //         this.dataList.shift();
-            //
-            //     }
-            // });
 
             this.getDB();
-
-
 
         }
         getDB() {
@@ -94,8 +73,7 @@
 
             };
             docClient.scan(params, (err : any, data : any) => {
-                this.boundingBox = [...data.Items]
-                console.log(data.Items)
+                this.dataList = [...data.Items]
 
 
             })
@@ -118,12 +96,13 @@
             this.file = e.target.files[0];
             this.getImageDimension();
         }
-        putDB(arg:Array<object>, key : string) {
+        putDB(lineArg:Array<object>, wordArg:Array<object>, key : string) {
 
             const params = {
                 Item : {
                     d_key : key,
-                    dimension : arg
+                    dimension : lineArg,
+                    extractText : wordArg
 
                 },
                 TableName : 'rekogDetectText'
@@ -165,24 +144,20 @@
 
                         const returnObj : lineShape = {
                             detectText : v.DetectedText,
-                            width : v.Geometry.BoundingBox.Width * this.imgDimensions.width,
-                            height : v.Geometry.BoundingBox.Height * this.imgDimensions.height,
-                            top : v.Geometry.BoundingBox.Top *  this.imgDimensions.height,
-                            left: v.Geometry.BoundingBox.Left * this.imgDimensions.width
+                            width : ((v.Geometry.BoundingBox.Width * this.imgDimensions.width) / this.imgDimensions.width) * 100,
+                            height : ((v.Geometry.BoundingBox.Height * this.imgDimensions.height) / this.imgDimensions.height) * 100,
+                            top : ((v.Geometry.BoundingBox.Top *  this.imgDimensions.height) / this.imgDimensions.height) * 100,
+                            left: ((v.Geometry.BoundingBox.Left * this.imgDimensions.width) / this.imgDimensions.width) * 100
                         };
                         return returnObj
                     });
-                    this.putDB(objectDimensions, data.Key)
-                    console.log(objectDimensions)
-
-
-
-
+                    this.putDB(objectDimensions,words, data.Key)
 
                 }
 
             })
         }
+
         uploadFile() {
             const s3 : any = new AWS.S3({
                 apiVersion : '2006-03-01',
@@ -201,9 +176,7 @@
                     throw err
                 }
                 this.rekognitioner(data)
-                this.dataList.unshift({
-                    uri : data.Location,
-                });
+
                 console.log('s3 upload success',data)
 
 
@@ -218,8 +191,34 @@
 ul{margin:0;padding:0}
 li{list-style: none;margin:0;padding:0}
     .imgArea{
-        li{
-            position: relative;
+        .imgList {padding:20px;}
+        .listObj{
+            overflow: hidden;box-shadow: 1px 1px 2px #aaa;max-width:900px;margin-bottom:20px;
+            .boundingBox{
+                position:absolute;display:inline-block;
+                border: 1px solid rgba(255, 255, 255, 0.69);
+                box-shadow: 0 0 2px #14a5ff, 0 0 2px #14a5ff, 0 0 2px #14a5ff,
+                    0 0 2px #14a5ff, inset 0 0 2px #14a5ff, inset 0 0 2px #14a5ff,
+                    inset 0 0 2px #14a5ff, inset 0 0 2px #14a5ff !important
+            }
+            .imgPreview{
+                display:inline-block;position: relative;float:left;max-width:70%;
+                figure{line-height: 0}
+                .placeholder{
+                    position: relative;line-height:0;display: inline-block;
+                    img{max-width:100%;border:0}
+                }
+
+            }
+            .cardDesc{
+                overflow: hidden;padding:20px;
+                .txInfo{
+                    overflow: hidden;
+                    dt{display: block;float:left;clear:left;margin-right:10px}
+                    dd{overflow: hidden}
+                }
+            }
+
         }
     }
 </style>
