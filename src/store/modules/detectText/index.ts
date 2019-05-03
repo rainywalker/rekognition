@@ -8,6 +8,17 @@ import { RootState } from '@/store/interface';
 
 export const state: TextDetectState = {
     dataList: [],
+    imgDimension : {
+        width : null,
+        height : null
+    },
+    lineShape : {
+        detectText : '',
+        width: null,
+        height: null,
+        top: null,
+        left: null
+    }
 };
 
 const namespaced: boolean = true;

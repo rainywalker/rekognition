@@ -4,9 +4,10 @@
         <p>
             <button type="button" class="btn_upload" @click="uploadFile">upload</button>
         </p>
+
         <div class="imgArea">
             <ul class="imgList">
-                <li class="listObj" v-for="(item,i) in dataList" :key="i">
+                <li class="listObj" v-for="(item,i) in getItems" :key="i">
                     <div class="imgPreview">
                         <div class="card">
                             <figure>
@@ -38,51 +39,26 @@
 </template>
 
 <script lang="ts">
-    const AWS = require('aws-sdk');
-    AWS.config.update({
-        region: 'ap-northeast-2',
-        credentials: new AWS.CognitoIdentityCredentials({
-            IdentityPoolId: 'ap-northeast-2:2d3bcfc3-d348-4ebe-b7dc-c08e0a0808e8'
-        })
-    });
-
     import {Component, Vue} from 'vue-property-decorator';
+    import {Action,Getter} from 'vuex-class';
 
-    interface lineShape {
-        detectText?: string,
-        width: number,
-        height: number,
-        top: number,
-        left: number
-    }
+    const namespace: string = 'textDetect';
 
     @Component
     export default class DetectText extends Vue {
+
+        @Action('s3Upload', {namespace}) s3Upload : any;
+        @Action('getDB', {namespace}) getDB : any;
+        @Getter('getItems',{namespace}) getItems : any;
+
         private file: any = null;
         private imgDimensions: any = {
             width: null,
             height: null,
-        }
-        private dataList: Array<object> = [];
+        };
 
         private created() {
-
-            this.getDB();
-
-        }
-
-        getDB() {
-            const docClient = new AWS.DynamoDB.DocumentClient();
-            const params = {
-                TableName: 'rekogDetectText',
-
-            };
-            docClient.scan(params, (err: any, data: any) => {
-                this.dataList = [...data.Items]
-
-
-            })
-
+            this.getDB()
         }
 
         getImageDimension() {
@@ -98,100 +74,16 @@
 
             }
         }
-
         handleFile(e: any): void {
             this.file = e.target.files[0];
             this.getImageDimension();
         }
-
-        putDB(lineArg: Array<object>, wordArg: Array<object>, key: string) {
-
-            const params = {
-                Item: {
-                    d_key: key,
-                    dimension: lineArg,
-                    extractText: wordArg
-
-                },
-                TableName: 'rekogDetectText'
-            };
-
-            const docClient = new AWS.DynamoDB.DocumentClient();
-            docClient.put(params, (err: any, data: any) => {
-                if (err) throw err;
-                else {
-                    console.log(data)
-                    this.getDB()
-
-
-                }
-            })
-
-
-        }
-
-        rekognitioner(data: any) {
-            const rekognition: any = new AWS.Rekognition();
-
-            rekognition.detectText({
-                Image: {
-                    S3Object: {
-                        Bucket: 'rekonition-img',
-                        Name: data.Key
-                    }
-                }
-            }, (err: any, res: any) => {
-                if (err) throw err
-
-                else {
-                    console.log(res)
-                    const lines: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'LINE');
-                    const words: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'WORD');
-
-                    const objectDimensions = lines.map((v: any) => {
-
-                        const returnObj: lineShape = {
-                            detectText: v.DetectedText,
-                            width: ((v.Geometry.BoundingBox.Width * this.imgDimensions.width) / this.imgDimensions.width) * 100,
-                            height: ((v.Geometry.BoundingBox.Height * this.imgDimensions.height) / this.imgDimensions.height) * 100,
-                            top: ((v.Geometry.BoundingBox.Top * this.imgDimensions.height) / this.imgDimensions.height) * 100,
-                            left: ((v.Geometry.BoundingBox.Left * this.imgDimensions.width) / this.imgDimensions.width) * 100
-                        };
-                        return returnObj
-                    });
-                    this.putDB(objectDimensions, words, data.Key)
-
-                }
-
-            })
-        }
-
         uploadFile() {
-            const s3: any = new AWS.S3({
-                apiVersion: '2006-03-01',
-                params: {
-                    Bucket: 'rekonition-img/detectText'
-                }
-            });
-
-            s3.upload({
-                Key: this.file.name,
-                Body: this.file,
-                ACL: 'public-read',
-                ContentType: this.file.type
-            }, (err: any, data: any) => {
-                if (err) {
-                    throw err
-                }
-                this.rekognitioner(data)
-
-                console.log('s3 upload success', data)
-
-
+            this.s3Upload({
+                file : this.file,
+                imgDimensions : this.imgDimensions
             })
         }
-
-
     }
 </script>
 
