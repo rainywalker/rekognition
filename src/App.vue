@@ -14,14 +14,16 @@
 
 <script lang="ts">
     import {Component, Prop, Vue} from 'vue-property-decorator';
-    import HelloWorld from '@/components/HelloWorld.vue'
+    import {State, Action, Getter} from 'vuex-class';
 
-    @Component({
-        components: {
-            HelloWorld
-        }
-    })
+    @Component
+
     export default class App extends Vue {
 
+        @Action('AWS_INIT') AWS_INIT : any;
+
+        private created() {
+            this.AWS_INIT()
+        }
     }
 </script>
