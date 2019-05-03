@@ -1,6 +1,6 @@
 import { ActionTree } from 'vuex';
-import { ImgDetectState } from './types';
-import { RootState } from '../../types';
+import { ImgDetectState } from '@/store/interface/state/detectImage';
+import { RootState } from '@/store/interface';
 import {AWS} from '@/store/AWS'
 
 export const actions : ActionTree<ImgDetectState, RootState> = {

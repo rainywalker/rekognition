@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex, {StoreOptions} from 'vuex';
 import {imageDetect} from './modules/detectImage'
-import { RootState } from './types';
+import { RootState } from '@/store/interface';
 import {AWS} from './AWS'
 
 

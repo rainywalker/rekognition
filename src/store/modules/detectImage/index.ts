@@ -2,8 +2,8 @@ import { Module } from 'vuex';
 import { getters } from './getters';
 import { actions } from './actions';
 import { mutations } from './mutations';
-import { ImgDetectState } from './types';
-import { RootState } from '../../types';
+import { ImgDetectState } from '@/store/interface/state/detectImage';
+import { RootState } from '@/store/interface';
 
 
 export const state: ImgDetectState = {
