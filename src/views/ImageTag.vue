@@ -7,7 +7,7 @@
 <script lang="ts">
 
     import {Component, Vue} from 'vue-property-decorator';
-    import ImageTag from '@/components/ImageTag.vue'; // @ is an alias to /src
+    import ImageTag from '@/components/ImageTag/index.vue'; // @ is an alias to /src
 
     @Component({
         components: {

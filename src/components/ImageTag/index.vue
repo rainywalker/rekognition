@@ -4,14 +4,7 @@
         <p><button type="button" class="btn_upload" @click="uploadFile">upload</button></p>
 
         <ul class="masonry">
-            <li class="item" v-for="(item,i) in getItems" :key="i">
-                <p><img :src="imgSrc(item.p_key)" alt=""></p>
-                <ul class="tags">
-                    <li v-for="(elem,idx) in item.tag" :key="idx">
-                        {{elem.name}}
-                    </li>
-                </ul>
-            </li>
+            <card v-for="(item,i) in getItems" :key="i" :item="item"></card>
         </ul>
     </div>
 </template>
@@ -19,10 +12,15 @@
 <script lang="ts">
     import {Component, Vue} from 'vue-property-decorator';
     import {Action, Getter} from 'vuex-class';
+    import Card from './Card.vue';
 
     const namespace: string = 'imageDetect';
 
-    @Component({})
+    @Component({
+        components : {
+            Card
+        }
+    })
     export default class ImageTag extends Vue {
 
         @Action('s3Upload', {namespace}) s3Upload : any;
@@ -44,9 +42,7 @@
 
         }
 
-        imgSrc(str : string) : string {
-            return `https://rekonition-img.s3.amazonaws.com/${str}`
-        }
+
 
     }
 </script>
@@ -59,22 +55,7 @@
     .masonry { /* Masonry container */
         column-count: 4;
         column-gap: 1em;
-        .item {
-            display: inline-block;
-            margin: 0 0 1em;
-            width: 100%;
-            border:1px solid #ddd;
-            .tags{
-                overflow:hidden;margin:0;padding:0 10px 10px;
-                li{
-                    float:left;background: darkslategray;color:#fff;padding:2px 5px;
-                    margin-right:5px;border-radius: 10px;margin-top:5px;
-                }
-            }
-            img{
-                max-width: 100%;
-            }
-        }
+
     }
 
 </style>

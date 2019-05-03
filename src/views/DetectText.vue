@@ -7,7 +7,7 @@
 <script lang="ts">
 
     import {Component, Vue} from 'vue-property-decorator';
-    import DetectText from '@/components/DetectText.vue';
+    import DetectText from '@/components/DetectText/index.vue';
 
     @Component({
         components : {
