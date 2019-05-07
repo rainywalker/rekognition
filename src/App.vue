@@ -69,7 +69,7 @@
     }
     .fade-enter, .fade-leave-active {
         opacity: 0;
-        transform: translateX(-30%);
+        transform: translateX(-10%);
     }
 
 
