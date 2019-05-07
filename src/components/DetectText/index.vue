@@ -1,9 +1,6 @@
 <template>
     <div class="wrap">
-        <p><input type="file" id="file" ref="file" @change="handleFile"></p>
-        <p>
-            <button type="button" class="btn_upload" @click="uploadFile">upload</button>
-        </p>
+        <fileHandle @uploadFile="uploadFile" @handleFile="handleFile"></fileHandle>
 
         <div class="imgArea">
             <ul class="imgList">
@@ -19,12 +16,14 @@
     import {Action,Getter} from 'vuex-class';
 
     import detectTextCard from './Card.vue';
+    import FileHandle from '@/components/FileHandle.vue';
 
     const namespace: string = 'textDetect';
 
     @Component({
         components : {
-            detectTextCard
+            detectTextCard,
+            FileHandle
         }
     })
     export default class DetectText extends Vue {
@@ -56,8 +55,8 @@
 
             }
         }
-        handleFile(e: any): void {
-            this.file = e.target.files[0];
+        handleFile(file : any): void {
+            this.file = file;
             this.getImageDimension();
         }
         uploadFile() {

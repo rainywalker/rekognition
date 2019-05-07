@@ -35,7 +35,8 @@ export const actions : ActionTree<ModerationState, RootState> = {
                     Bucket: 'rekonition-img',
                     Name: data.Key
                 }
-            }
+            },
+            MinConfidence : 95
         }, (err: any, res: any) => {
             if (err) throw err
 

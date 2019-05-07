@@ -15,9 +15,11 @@
         private file : any = null;
         private imageName : string = '';
 
+        @Emit('handleFile')
         handleFile(changeEvent : any) : void {
             this.file = changeEvent.target.files[0];
             this.imageName = this.file.name
+            return this.file
         }
 
         pickFile() : void {
@@ -25,9 +27,17 @@
             elem.click()
         }
 
-        @Emit('uploadFile')
+
         uploadFile() {
-            return this.file
+
+            if (this.file === null) {
+                alert('이미지를 선택해주세요')
+                return false
+            }
+            else {
+                this.$emit('uploadFile', this.file)
+            }
+
         }
     }
 </script>

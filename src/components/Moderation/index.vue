@@ -1,31 +1,32 @@
 <template>
     <div class="area">
-        <p><input type="file" id="file" ref="file" @change="handleFile"></p>
-        <p><button type="button" class="btn_upload" @click="uploadFile">upload</button></p>
+        <fileHandle @uploadFile="uploadFile"></fileHandle>
     </div>
 </template>
 
 <script lang="ts">
     import {Component, Vue} from 'vue-property-decorator';
     import {Action, Getter} from 'vuex-class';
+    import FileHandle from '@/components/FileHandle.vue';
 
     const namespace: string = 'moderationDetect';
 
-    @Component
+    @Component({
+        components : {
+            FileHandle
+        }
+    })
     export default class Moderation extends Vue {
         @Action('s3Upload', {namespace}) s3Upload : any;
 
         private file : any = null;
 
 
-        uploadFile() : void {
-            this.s3Upload(this.file)
+        uploadFile(file : any) : void {
+            this.s3Upload(file)
 
         }
-        handleFile(e : any) : void {
-            this.file = e.target.files[0];
 
-        }
 
     }
 </script>
