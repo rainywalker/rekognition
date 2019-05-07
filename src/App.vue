@@ -1,12 +1,15 @@
 <template>
     <v-app>
-        <h1>AWS Rekonition Test (드루와~)</h1>
-        <strong>업로드한 이미지들은 언제든지 삭제될수 있습니다</strong>
-        <ul>
+        <div class="top">
+            <h1>AWS Rekonition Test (드루와~)</h1>
+            <strong>업로드한 이미지들은 언제든지 삭제될수 있습니다</strong>
+        </div>
+        <ul class="menu">
             <li v-for="(item,i) in routeURI" :key="i">
                 <router-link :to="item.uri">{{item.label}}</router-link>
             </li>
         </ul>
+
         <router-view></router-view>
 
     </v-app>
@@ -40,3 +43,25 @@
         }
     }
 </script>
+
+<style lang="scss">
+    @import './assets/style/common.scss';
+    .top{
+        text-align: center;
+        padding:20px 0;
+    }
+
+    .menu{
+        display: flex;box-shadow: 1px 1px 1px #ddd;margin-bottom:20px;
+        li{
+
+            margin-left:20px;flex:1;
+            &:first-child{margin-left:0}
+            a{
+                display: block;font-size:15px;text-align: center;padding:15px 0;color:rgba(0,0,0,0.87);
+                &.router-link-exact-active{color:#005caf;border-bottom:2px solid #005caf}
+
+            }
+        }
+    }
+</style>
