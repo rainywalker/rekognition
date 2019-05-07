@@ -36,14 +36,21 @@ export const actions : ActionTree<ModerationState, RootState> = {
                     Name: data.Key
                 }
             },
-            MinConfidence : 95
+
         }, (err: any, res: any) => {
             if (err) throw err
 
             else {
-                console.log(res)
+                console.log(res);
+                if (res.ModerationLabels.length > 0) dispatch('putDB', res.ModerationLabels);
+                else {
+
+                }
+
             }
         })
+    },
+    putDB({commit}, list : Array<object>) : void {
 
     }
 }

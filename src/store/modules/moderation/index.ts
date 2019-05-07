@@ -9,7 +9,7 @@ import { RootState } from '@/store/interface';
 const namespaced: boolean = true;
 
 export const state: ModerationState = {
-
+    items : []
 }
 
 export const moderationDetect: Module<ModerationState, RootState> = {
