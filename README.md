@@ -1,5 +1,22 @@
 # rekognition
 
+
+## AWS Rekognition Test (이미지 분석)
+
+- detectLabels
+- detectText
+- detectModeration
+
+### detectLabels
+
+- It detects objects and scenes in an image and extracts matched keywords.
+
+### detectText
+
+
+ 
+
+
 ## Project setup
 ```
 yarn install
@@ -15,20 +32,5 @@ yarn run serve
 yarn run build
 ```
 
-### Run your tests
-```
-yarn run test
-```
 
-### Lints and fixes files
-```
-yarn run lint
-```
 
-### Run your unit tests
-```
-yarn run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

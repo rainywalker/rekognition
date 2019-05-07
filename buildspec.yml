@@ -1,0 +1,24 @@
+version: 0.1
+
+phases:
+  install:
+    commands:
+      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+      - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+      - apt-get -y update
+      - apt-get install -y yarn
+      - yarn install
+
+  pre_build:
+    commands:
+      - yarn install
+
+  build:
+    commands:
+      - yarn build
+
+  post_build:
+    commands:
+      - aws s3 rm s3://jaelomin-rekognition --recursive
+      - aws s3 cp ./dist/ s3://jaelomin-rekognition --recursive --grant read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+      - aws cloudfront create-invalidation --distribution-id E2CBMIKZYI892Z --paths "/*"

@@ -21,7 +21,7 @@ export default new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/Moderation.vue')
+      component: () => import(/* webpackChunkName: "moderation" */ './views/Moderation.vue')
     },
     {
       path: '/detectText',
@@ -29,7 +29,7 @@ export default new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/DetectText.vue')
+      component: () => import(/* webpackChunkName: "detectText" */ './views/DetectText.vue')
     }
   ]
 })

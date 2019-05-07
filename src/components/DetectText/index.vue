@@ -69,15 +69,8 @@
 </script>
 
 <style lang="scss" scoped>
-    ul {
-        margin: 0;
-        padding: 0
-    }
-
-    li {
-        list-style: none;
-        margin: 0;
-        padding: 0
+    .wrap{
+        max-width: 980px;margin:0 auto;
     }
 
     .imgArea {

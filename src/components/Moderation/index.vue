@@ -1,6 +1,7 @@
 <template>
     <div class="area">
         <fileHandle @uploadFile="uploadFile"></fileHandle>
+        <detect-moderation-card />
     </div>
 </template>
 
@@ -8,12 +9,15 @@
     import {Component, Vue} from 'vue-property-decorator';
     import {Action, Getter} from 'vuex-class';
     import FileHandle from '@/components/FileHandle.vue';
+    import DetectModerationCard from './Card.vue';
+
 
     const namespace: string = 'moderationDetect';
 
     @Component({
         components : {
-            FileHandle
+            FileHandle,
+            DetectModerationCard
         }
     })
     export default class Moderation extends Vue {
@@ -31,6 +35,8 @@
     }
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+.area{
+    max-width:980px;margin:0 auto
+}
 </style>
