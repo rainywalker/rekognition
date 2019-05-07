@@ -12,7 +12,7 @@ export const state: ImgDetectState = {
 
 const namespaced: boolean = true;
 
-export const imageDetect: Module<ImgDetectState, RootState> = {
+export const labelDetect: Module<ImgDetectState, RootState> = {
     namespaced,
     state,
     getters,

@@ -14,7 +14,7 @@
     import {Action, Getter} from 'vuex-class';
     import Card from './Card.vue';
 
-    const namespace: string = 'imageDetect';
+    const namespace: string = 'labelDetect';
 
     @Component({
         components : {

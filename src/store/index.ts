@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex, {StoreOptions} from 'vuex';
-import {imageDetect} from './modules/detectImage'
+import {labelDetect} from './modules/detectLabel'
 import {textDetect} from './modules/detectText'
 import {moderationDetect} from './modules/moderation';
 import { RootState } from '@/store/interface';
@@ -17,7 +17,7 @@ export default new Vuex.Store<RootState>({
     },
     getters : {},
     modules: {
-        imageDetect,
+        labelDetect,
         textDetect,
         moderationDetect
     },
