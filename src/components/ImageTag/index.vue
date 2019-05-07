@@ -37,8 +37,8 @@
             this.s3Upload(this.file)
 
         }
-        handleFile(e : any) : void {
-            this.file = e.target.files[0];
+        handleFile(changeEvent : any) : void {
+            this.file = changeEvent.target.files[0];
 
         }
 

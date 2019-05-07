@@ -13,7 +13,7 @@
     import {Component, Vue, Prop} from 'vue-property-decorator';
 
     @Component
-    export default class Card extends Vue {
+    export default class DetectLabelCard extends Vue {
         @Prop(Object) item!:object;
 
         imgSrc(str : string) : string {
