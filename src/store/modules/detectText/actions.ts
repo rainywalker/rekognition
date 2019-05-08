@@ -3,9 +3,11 @@ import { TextDetectState } from '@/store/interface/state/detectText';
 import { RootState } from '@/store/interface';
 import {AWS} from '@/store/AWS'
 
+
 export const actions : ActionTree<TextDetectState, RootState> = {
-    s3Upload({rootState, dispatch, commit}, {file,imgDimensions}) : void {
+    async s3Upload({rootState, dispatch, commit}, {file,imgDimensions}){
         rootState.isLoading = true;
+
         const s3: any = new AWS.S3({
             apiVersion: '2006-03-01',
             params: {
@@ -13,62 +15,71 @@ export const actions : ActionTree<TextDetectState, RootState> = {
             }
         });
 
-        s3.upload({
-            Key: file.name,
-            Body:file,
-            ACL: 'public-read',
-            ContentType: file.type
-        }, (err: any, data: any) => {
-            if (err) throw err;
-            else {
-                dispatch('rekognitioner',{
-                    data,
-                    imgDimensions
-                });
-                console.log('s3 upload success', data)
-            }
-        })
+        try {
+            const result : any = await s3.upload({
+                Key: file.name,
+                Body:file,
+                ACL: 'public-read',
+                ContentType: file.type
+            }).promise();
+
+            dispatch('rekognitioner',{
+                result,
+                imgDimensions
+            });
+
+            console.log('s3 upload success', result)
+        }
+        catch (e) {
+            console.log(e)
+        }
     },
-    rekognitioner({dispatch, state},{data,imgDimensions}) :void {
+    async rekognitioner({dispatch, state},{result,imgDimensions}) {
         const rekognition: any = new AWS.Rekognition();
 
-        rekognition.detectText({
-            Image: {
-                S3Object: {
-                    Bucket: 'rekonition-img',
-                    Name: data.Key
+        try {
+            const res  = await rekognition.detectText({
+                Image: {
+                    S3Object: {
+                        Bucket: 'rekonition-img',
+                        Name: result.Key
+                    }
                 }
-            }
-        }, (err: any, res: any) => {
-            if (err) throw err
+            }).promise();
 
-            else {
-                console.log(res)
-                const lines: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'LINE');
-                const words: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'WORD');
+            const lines: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'LINE');
+            const words: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'WORD');
 
-                const objectDimensions = lines.map((v: any) => {
-
-                    const returnObj = {
-
-                        detectText: v.DetectedText,
-                        width: ((v.Geometry.BoundingBox.Width * imgDimensions.width) / imgDimensions.width) * 100,
-                        height: ((v.Geometry.BoundingBox.Height * imgDimensions.height) / imgDimensions.height) * 100,
-                        top: ((v.Geometry.BoundingBox.Top * imgDimensions.height) / imgDimensions.height) * 100,
-                        left: ((v.Geometry.BoundingBox.Left * imgDimensions.width) / imgDimensions.width) * 100
-
-                    };
-                    return returnObj
-                });
-                console.log(objectDimensions)
-                dispatch('putDB',{objectDimensions,words,key:data.Key})
-
+            interface returnObj {
+                detectText : string,
+                width : number,
+                height : number,
+                top : number,
+                left : number
             }
 
-        })
+            const objectDimensions : Array<object> = lines.map((v: any) => {
+
+                const returnObj : returnObj = {
+                    detectText: v.DetectedText,
+                    width: ((v.Geometry.BoundingBox.Width * imgDimensions.width) / imgDimensions.width) * 100,
+                    height: ((v.Geometry.BoundingBox.Height * imgDimensions.height) / imgDimensions.height) * 100,
+                    top: ((v.Geometry.BoundingBox.Top * imgDimensions.height) / imgDimensions.height) * 100,
+                    left: ((v.Geometry.BoundingBox.Left * imgDimensions.width) / imgDimensions.width) * 100
+
+                };
+                return returnObj
+            });
+            console.log(objectDimensions)
+            dispatch('putDB',{objectDimensions,words,key:result.Key})
+
+        }
+        catch (e) {
+            console.log(e)
+        }
     },
 
-    putDB({dispatch,commit,rootState},{objectDimensions,words,key}) : void{
+    async putDB({dispatch,commit,rootState},{objectDimensions,words,key}) {
 
         const params = {
             Item: {
@@ -82,24 +93,31 @@ export const actions : ActionTree<TextDetectState, RootState> = {
 
         const docClient = new AWS.DynamoDB.DocumentClient();
 
-        docClient.put(params, (err: any, data: any) => {
-            if (err) throw err;
-            else {
-                commit('pushItem',params.Item);
-                rootState.isLoading = false
-            }
-        })
+        try {
+            const result = await docClient.put(params).promise();
+            commit('pushItem',params.Item);
+            rootState.isLoading = false
+        }
+        catch (e) {
+            console.log(e)
+        }
+
     },
-    getDB({dispatch, commit}) : void {
-        const docClient = new AWS.DynamoDB.DocumentClient();
+    async getDB({commit}) {
+
+        const docClient : any = new AWS.DynamoDB.DocumentClient();
+
         const params = {
             TableName: 'rekogDetectText',
-
         };
-        docClient.scan(params, (err: any, data: any) => {
 
-            commit('getItems', data.Items)
+        try {
+            const result : any = await docClient.scan(params).promise();
+            commit('getItems', result.Items)
+        }
+        catch (e) {
+            console.log(e)
+        }
 
-        })
     }
 };

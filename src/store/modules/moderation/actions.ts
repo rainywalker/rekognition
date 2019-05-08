@@ -5,7 +5,7 @@ import {AWS} from '@/store/AWS'
 import moment from 'moment';
 
 export const actions : ActionTree<ModerationState, RootState> = {
-    s3Upload({commit, dispatch, rootState}, file : any) : void {
+    async s3Upload({commit, dispatch, rootState}, file : any) {
         rootState.isLoading = true;
         const s3: any = new AWS.S3({
             apiVersion: '2006-03-01',
@@ -13,54 +13,55 @@ export const actions : ActionTree<ModerationState, RootState> = {
                 Bucket: 'rekonition-img/moderation'
             }
         });
+        try {
+            const result : any = await s3.upload({
+                Key : file.name,
+                Body : file,
+                ACL : 'public-read',
+                ContentType : file.type
+            }).promise();
 
-        s3.upload({
-            Key : file.name,
-            Body : file,
-            ACL : 'public-read',
-            ContentType : file.type
-        }, (err:any, data:any) => {
-            if (err) {
-                throw err
-            }
-            dispatch('rekognition', data)
-        })
+            dispatch('rekognition', result)
+        }
+        catch (e) {
+            console.log(e)
+        }
+
     },
-    rekognition({dispatch}, data) : void {
+    async rekognition({dispatch}, data) {
 
         const rekognition : any = new AWS.Rekognition();
 
-        rekognition.detectModerationLabels({
-            Image: {
-                S3Object: {
-                    Bucket: 'rekonition-img',
-                    Name: data.Key
-                }
-            },
-
-        }, (err: any, res: any) => {
-            if (err) throw err
-
-            else {
-                console.log(res);
-
-                const moderationLabel = res.ModerationLabels.map((v:any) => {
-                    if (v.ParentName === '') {
-                        v.ParentName = '-'
+        try {
+            const result = await rekognition.detectModerationLabels({
+                Image: {
+                    S3Object: {
+                        Bucket: 'rekonition-img',
+                        Name: data.Key
                     }
-                    return v
-                });
-                dispatch('putDB', {
-                    moderationLabel,
-                    name : data.Key
-                });
+                },
+            }).promise();
 
-            }
-        })
+            const moderationLabel = result.ModerationLabels.map((v:any) => {
+                if (v.ParentName === '') {
+                    v.ParentName = '-'
+                }
+                return v
+            });
+
+            dispatch('putDB', {
+                moderationLabel,
+                name : data.Key
+            });
+        }
+        catch (e) {
+            console.log(e)
+        }
     },
-    putDB({commit,rootState}, {moderationLabel, name}) : void {
-        const timestamp = moment().format('x')
-        console.log(Array.isArray(moderationLabel) ,moderationLabel)
+    async putDB({commit,rootState}, {moderationLabel, name}) {
+
+        const timestamp : string = moment().format('x');
+
         const params = {
             Item: {
                 id: timestamp,
@@ -70,27 +71,30 @@ export const actions : ActionTree<ModerationState, RootState> = {
             TableName: 'rekogModeration'
         };
 
-        const docClient = new AWS.DynamoDB.DocumentClient();
+        const docClient : any = new AWS.DynamoDB.DocumentClient();
 
-        docClient.put(params, (err: any, data: any) => {
-            if (err) throw err;
-            else {
-                console.log(data)
-                commit('pushItem',params.Item);
-                rootState.isLoading = false;
-            }
-        })
+        try {
+            const result = await docClient.put(params).promise();
+            commit('pushItem',params.Item);
+            rootState.isLoading = false;
+        }
+        catch (e) {
+            console.log(e)
+        }
+
     },
-    getDB({commit}) : void {
-        const docClient = new AWS.DynamoDB.DocumentClient();
+    async getDB({commit}) {
+        const docClient : any = new AWS.DynamoDB.DocumentClient();
         const params = {
             TableName: 'rekogModeration',
-
         };
-        docClient.scan(params, (err: any, data: any) => {
 
-            commit('getItems', data.Items)
-
-        })
+        try {
+            const result  = await docClient.scan(params).promise();
+            commit('getItems', result.Items);
+        }
+        catch (e) {
+            console.log(e)
+        }
     }
 }
