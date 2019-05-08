@@ -1,5 +1,6 @@
 <template>
     <div class="area">
+        <h2>Detect Moderation : 안전하지 않은 이미지(후방주의?) 감지</h2>
         <fileHandle @uploadFile="uploadFile"></fileHandle>
         <ul class="wrap">
             <detect-moderation-card v-for="(item,i) in getItems" :item="item" :key="i" />

@@ -1,5 +1,6 @@
 <template>
     <div class="imgArea">
+        <h2>Detect Image : 객체 및 장면 감지</h2>
         <fileHandle @uploadFile="uploadFile"></fileHandle>
         <ul class="masonry">
             <card v-for="(item,i) in getItems" :key="i" :item="item"></card>

@@ -1,5 +1,6 @@
 <template>
     <div class="wrap">
+        <h2>Detect Text : 텍스트 감지</h2>
         <fileHandle @uploadFile="uploadFile" @handleFile="handleFile"></fileHandle>
 
         <div class="imgArea">
