@@ -1,9 +1,9 @@
 <template>
     <li class="cardObj">
         <span class="placeholder">
-            <img :src="imgSrc(item.name)" :class="{blur:seen}" alt="">
-            <em v-if="modal" class="blindLayer"> </em>
-            <button type="button" v-if="modal" class="showMe" @click="showMe">show me</button>
+            <img :src="imgSrc(item.name)" :class="{blur:isBlind  && seen === true}" alt="">
+            <em v-if="isBlind && seen === true" class="blindLayer"> </em>
+            <button type="button" v-if="isBlind  && seen === true" class="showMe" @click="showMe">show me</button>
         </span>
         <ul class="tags">
             <li v-for="(v,i) in item.tags" :key="i">
@@ -25,27 +25,30 @@
         @Prop(Object) item!:any;
 
         private seen : boolean = false;
-        private modal : boolean =  false;
 
         created() {
             if (this.item.tags.length > 0) {
                 this.item.tags.forEach((v : any) => {
                     if (v.Name === 'Explicit Nudity') {
                         this.seen = true;
-                        this.modal = true;
                     }
                 })
             }
             else {
                 this.seen = false
-                this.modal = false
             }
+        }
+        private get isBlind() {
+            if (this.item.tags.length > 0) {
+                return this.item.tags.map((v : any) => v.Name === 'Explicit Nudity')[0]
+            }
+            else return false
         }
 
         showMe() : void {
-            this.modal = false;
-            this.seen = false;
+            this.seen = false
         }
+
         imgSrc(str : string) : string {
             return `https://rekonition-img.s3.amazonaws.com/${str}`
         }
