@@ -2,6 +2,7 @@ import { ActionTree } from 'vuex';
 import { ModerationState } from '@/store/interface/state/moderation';
 import { RootState } from '@/store/interface';
 import {AWS} from '@/store/AWS'
+import moment from 'moment';
 
 export const actions : ActionTree<ModerationState, RootState> = {
     s3Upload({commit, dispatch}, file : any) : void {
@@ -42,15 +43,53 @@ export const actions : ActionTree<ModerationState, RootState> = {
 
             else {
                 console.log(res);
-                if (res.ModerationLabels.length > 0) dispatch('putDB', res.ModerationLabels);
-                else {
 
-                }
+                const moderationLabel = res.ModerationLabels.map((v:any) => {
+                    if (v.ParentName === '') {
+                        v.ParentName = '-'
+                    }
+                    return v
+                });
+                dispatch('putDB', {
+                    moderationLabel,
+                    name : data.Key
+                });
 
             }
         })
     },
-    putDB({commit}, list : Array<object>) : void {
+    putDB({commit}, {moderationLabel, name}) : void {
+        const timestamp = moment().format('x')
+        console.log(Array.isArray(moderationLabel) ,moderationLabel)
+        const params = {
+            Item: {
+                id: timestamp,
+                name,
+                tags: moderationLabel
+            },
+            TableName: 'rekogModeration'
+        };
 
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
+        docClient.put(params, (err: any, data: any) => {
+            if (err) throw err;
+            else {
+                console.log(data)
+                commit('pushItem',params.Item)
+            }
+        })
+    },
+    getDB({commit}) : void {
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        const params = {
+            TableName: 'rekogModeration',
+
+        };
+        docClient.scan(params, (err: any, data: any) => {
+
+            commit('getItems', data.Items)
+
+        })
     }
 }
