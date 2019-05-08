@@ -4,8 +4,8 @@ import { RootState } from '@/store/interface';
 import {AWS} from '@/store/AWS'
 
 export const actions : ActionTree<TextDetectState, RootState> = {
-    s3Upload({state, dispatch, commit}, {file,imgDimensions}) : void {
-
+    s3Upload({rootState, dispatch, commit}, {file,imgDimensions}) : void {
+        rootState.isLoading = true;
         const s3: any = new AWS.S3({
             apiVersion: '2006-03-01',
             params: {
@@ -68,7 +68,7 @@ export const actions : ActionTree<TextDetectState, RootState> = {
         })
     },
 
-    putDB({dispatch,commit,state},{objectDimensions,words,key}) : void{
+    putDB({dispatch,commit,rootState},{objectDimensions,words,key}) : void{
 
         const params = {
             Item: {
@@ -85,7 +85,8 @@ export const actions : ActionTree<TextDetectState, RootState> = {
         docClient.put(params, (err: any, data: any) => {
             if (err) throw err;
             else {
-                commit('pushItem',params.Item)
+                commit('pushItem',params.Item);
+                rootState.isLoading = false
             }
         })
     },

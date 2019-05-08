@@ -5,6 +5,7 @@ import {AWS} from '@/store/AWS'
 
 export const actions : ActionTree<ImgDetectState, RootState> = {
     s3Upload({rootState, commit, dispatch},file : any) : void {
+        rootState.isLoading = true;
         const s3 : any = new AWS.S3({
             apiVersion : '2006-03-01',
             params : {
@@ -46,7 +47,7 @@ export const actions : ActionTree<ImgDetectState, RootState> = {
 
         })
     },
-    putDB({commit, dispatch}, res : any) : void {
+    putDB({rootState,commit, dispatch}, res : any) : void {
         const items : Array <object> = res.res.Labels.map((v:any) => {
             return {
                 name : v.Name,
@@ -68,7 +69,8 @@ export const actions : ActionTree<ImgDetectState, RootState> = {
             else {
                 console.log(data)
                 // dispatch('getDB')
-                commit('pushItem',params.Item)
+                commit('pushItem',params.Item);
+                rootState.isLoading = false
 
             }
         })

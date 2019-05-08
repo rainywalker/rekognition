@@ -5,8 +5,8 @@ import {AWS} from '@/store/AWS'
 import moment from 'moment';
 
 export const actions : ActionTree<ModerationState, RootState> = {
-    s3Upload({commit, dispatch}, file : any) : void {
-
+    s3Upload({commit, dispatch, rootState}, file : any) : void {
+        rootState.isLoading = true;
         const s3: any = new AWS.S3({
             apiVersion: '2006-03-01',
             params: {
@@ -58,7 +58,7 @@ export const actions : ActionTree<ModerationState, RootState> = {
             }
         })
     },
-    putDB({commit}, {moderationLabel, name}) : void {
+    putDB({commit,rootState}, {moderationLabel, name}) : void {
         const timestamp = moment().format('x')
         console.log(Array.isArray(moderationLabel) ,moderationLabel)
         const params = {
@@ -76,7 +76,8 @@ export const actions : ActionTree<ModerationState, RootState> = {
             if (err) throw err;
             else {
                 console.log(data)
-                commit('pushItem',params.Item)
+                commit('pushItem',params.Item);
+                rootState.isLoading = false;
             }
         })
     },
