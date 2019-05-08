@@ -16,5 +16,5 @@ phases:
   post_build:
     commands:
       - aws s3 rm s3://jaelomin-rekognition --recursive
-      - aws s3 cp ./dist/ s3://jaelomin-rekognition --recursive --grant read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+      - aws s3 sync ./dist/ s3://jaelomin-rekognition
       - aws cloudfront create-invalidation --distribution-id E2CBMIKZYI892Z --paths "/*"
