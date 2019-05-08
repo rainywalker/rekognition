@@ -9,10 +9,6 @@ phases:
       - apt-get install -y yarn
       - yarn install
 
-  pre_build:
-    commands:
-      - yarn install
-
   build:
     commands:
       - yarn build
