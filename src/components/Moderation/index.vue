@@ -1,7 +1,10 @@
 <template>
     <div class="area">
         <fileHandle @uploadFile="uploadFile"></fileHandle>
-        <detect-moderation-card v-for="(item,i) in getItems" :item="item" :key="i" />
+        <ul class="wrap">
+            <detect-moderation-card v-for="(item,i) in getItems" :item="item" :key="i" />
+        </ul>
+
     </div>
 </template>
 
@@ -43,6 +46,16 @@
 
 <style scoped lang="scss">
 .area{
-    max-width:980px;margin:0 auto
+    max-width:980px;margin:0 auto;
+    .wrap{
+        column-count: 2;
+        column-gap: 1em;
+        margin-top:20px;
+    }
+    @media screen and (max-width: 40em) {
+        .wrap{
+            column-count: 1;
+        }
+    }
 }
 </style>
