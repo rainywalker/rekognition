@@ -2,33 +2,25 @@ import { ActionTree } from 'vuex';
 import { TextDetectState } from '@/store/interface/state/detectText';
 import { RootState } from '@/store/interface';
 import {AWS} from '@/store/AWS'
+import   * as awsCommon from '@/store/AWS_common';
 
 
 export const actions : ActionTree<TextDetectState, RootState> = {
     async s3Upload({rootState, dispatch, commit}, {file,imgDimensions}){
+
         rootState.isLoading = true;
 
-        const s3: any = new AWS.S3({
-            apiVersion: '2006-03-01',
-            params: {
-                Bucket: 'rekonition-img/detectText'
-            }
-        });
+        const s3 = awsCommon.S3prepareParams('rekonition-img/detectText');
 
         try {
-            const result : any = await s3.upload({
-                Key: file.name,
-                Body:file,
-                ACL: 'public-read',
-                ContentType: file.type
-            }).promise();
+
+            const result : any = await s3.upload(awsCommon.s3uploadObject(file)).promise();
 
             dispatch('rekognitioner',{
                 result,
                 imgDimensions
             });
 
-            console.log('s3 upload success', result)
         }
         catch (e) {
             console.log(e)
@@ -38,14 +30,7 @@ export const actions : ActionTree<TextDetectState, RootState> = {
         const rekognition: any = new AWS.Rekognition();
 
         try {
-            const res  = await rekognition.detectText({
-                Image: {
-                    S3Object: {
-                        Bucket: 'rekonition-img',
-                        Name: result.Key
-                    }
-                }
-            }).promise();
+            const res  = await rekognition.detectText(awsCommon.rekognitionObject(result)).promise();
 
             const lines: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'LINE');
             const words: Array<object> = res.TextDetections.filter((v: any) => v.Type === 'WORD');

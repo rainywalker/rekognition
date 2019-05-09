@@ -1,25 +1,20 @@
 import { ActionTree } from 'vuex';
 import { ModerationState } from '@/store/interface/state/moderation';
 import { RootState } from '@/store/interface';
-import {AWS} from '@/store/AWS'
+import {AWS} from '@/store/AWS';
+import   * as awsCommon from '@/store/AWS_common';
 import moment from 'moment';
 
 export const actions : ActionTree<ModerationState, RootState> = {
     async s3Upload({commit, dispatch, rootState}, file : any) {
+
         rootState.isLoading = true;
-        const s3: any = new AWS.S3({
-            apiVersion: '2006-03-01',
-            params: {
-                Bucket: 'rekonition-img/moderation'
-            }
-        });
+
+        const s3 = awsCommon.S3prepareParams('rekonition-img/moderation');
+
         try {
-            const result : any = await s3.upload({
-                Key : file.name,
-                Body : file,
-                ACL : 'public-read',
-                ContentType : file.type
-            }).promise();
+
+            const result : any = await s3.upload(awsCommon.s3uploadObject(file)).promise();
 
             dispatch('rekognition', result)
         }
@@ -33,14 +28,8 @@ export const actions : ActionTree<ModerationState, RootState> = {
         const rekognition : any = new AWS.Rekognition();
 
         try {
-            const result = await rekognition.detectModerationLabels({
-                Image: {
-                    S3Object: {
-                        Bucket: 'rekonition-img',
-                        Name: data.Key
-                    }
-                },
-            }).promise();
+
+            const result  = await rekognition.detectText(awsCommon.rekognitionObject(data)).promise();
 
             const moderationLabel = result.ModerationLabels.map((v:any) => {
                 if (v.ParentName === '') {

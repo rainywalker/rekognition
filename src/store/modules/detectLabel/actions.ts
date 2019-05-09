@@ -2,23 +2,18 @@ import { ActionTree } from 'vuex';
 import { ImgDetectState } from '@/store/interface/state/detectImage';
 import { RootState } from '@/store/interface';
 import {AWS} from '@/store/AWS'
+import * as awsCommon from "@/store/AWS_common";
 
 export const actions : ActionTree<ImgDetectState, RootState> = {
     async s3Upload({rootState, commit, dispatch},file : any) {
+
         rootState.isLoading = true;
-        const s3 : any = new AWS.S3({
-            apiVersion : '2006-03-01',
-            params : {
-                Bucket : rootState.bucketName
-            }
-        });
+
+        const s3 = awsCommon.S3prepareParams('rekonition-img/detectLabel');
+
         try {
-            const result = await s3.upload({
-                Key : file.name,
-                Body : file,
-                ACL : 'public-read',
-                ContentType : file.type
-            }).promise();
+
+            const result : any = await s3.upload(awsCommon.s3uploadObject(file)).promise();
 
             dispatch('rekognition', result)
         }
