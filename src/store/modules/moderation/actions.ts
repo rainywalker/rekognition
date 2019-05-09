@@ -29,7 +29,7 @@ export const actions : ActionTree<ModerationState, RootState> = {
 
         try {
 
-            const result  = await rekognition.detectText(awsCommon.rekognitionObject(data)).promise();
+            const result  = await rekognition.detectModerationLabels(awsCommon.rekognitionObject(data)).promise();
 
             const moderationLabel = result.ModerationLabels.map((v:any) => {
                 if (v.ParentName === '') {

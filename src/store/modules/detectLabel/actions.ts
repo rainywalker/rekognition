@@ -25,14 +25,8 @@ export const actions : ActionTree<ImgDetectState, RootState> = {
         const rekognition : any = new AWS.Rekognition();
 
         try {
-            const result = await rekognition.detectLabels({
-                Image : {
-                    S3Object : {
-                        Bucket : data.Bucket,
-                        Name : data.Key
-                    }
-                }
-            }).promise();
+
+            const result  = await rekognition.detectLabels(awsCommon.rekognitionObject(data)).promise();
 
             dispatch('putDB',{result,name : data.Key})
 
