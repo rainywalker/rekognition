@@ -1,7 +1,8 @@
 <template>
-    <div class="home">
+    <div class="bodyWrap2">
         <image-tag></image-tag>
     </div>
+
 </template>
 
 <script lang="ts">
@@ -14,7 +15,8 @@
             ImageTag,
         },
     })
-    export default class imgDetect extends Vue {
+    export default class detectLabel extends Vue {
+
     }
 </script>
 

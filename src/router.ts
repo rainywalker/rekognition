@@ -1,8 +1,9 @@
 import Vue from 'vue'
-import Router from 'vue-router'
-import Home from './views/ImageTag.vue'
+import Router from 'vue-router';
+import BodyWrap from './views/BodyWrap.vue'
 import Moderation from './views/Moderation.vue'
 import DetectText from './views/DetectText.vue'
+
 
 Vue.use(Router)
 
@@ -12,18 +13,29 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
+      alias : '/rekog',
+      name: 'BodyWrap',
+      component: BodyWrap,
+      children : [
+        {
+          path : 'detectLabel',
+          name : 'detectLabel',
+          component: () => import(/* webpackChunkName: "DetectLabel" */ './views/ImageTag.vue')
+        },
+        {
+          path: 'detectText',
+          name: 'DetectText',
+          component: () => import(/* webpackChunkName: "detectText" */ './views/DetectText.vue')
+        },
+        {
+          path: 'moderation',
+          name: 'Moderation',
+          component: () => import(/* webpackChunkName: "moderation" */ './views/Moderation.vue')
+        },
+      ]
     },
-    {
-      path: '/moderation',
-      name: 'Moderation',
-      component: () => import(/* webpackChunkName: "moderation" */ './views/Moderation.vue')
-    },
-    {
-      path: '/detectText',
-      name: 'DetectText',
-      component: () => import(/* webpackChunkName: "detectText" */ './views/DetectText.vue')
-    }
+
+
+
   ]
 })
