@@ -1,7 +1,7 @@
 <template>
     <div class="bodyWrap">
         <div class="top">
-            <h1>AWS Rekonition Test (드루와~)</h1>
+            <h1><a href="/">AWS Rekonition Test (드루와~)</a></h1>
             <strong>업로드한 이미지들은 언제든지 삭제될수 있습니다</strong>
         </div>
         <ul class="menu">
@@ -21,6 +21,11 @@
     @Component
     export default class BodyWrap extends Vue {
 
+        private created() {
+            this.$router.push({
+                path : '/detectLabel'
+            })
+        }
         private routeURI : Array<object> = [
             {
                 label : 'Detect Image',

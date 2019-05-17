@@ -34,7 +34,15 @@ export default new Router({
         },
       ]
     },
-
+    {
+      path : '/rekog',
+      redirect : '/rekog/detectLabel'
+    },
+    {
+      path: '/admin',
+      name : 'Admin',
+      component: () => import(/* webpackChunkName: "admin" */ './views/Admin.vue')
+    }
 
 
   ]
