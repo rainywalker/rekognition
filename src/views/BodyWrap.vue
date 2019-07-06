@@ -22,9 +22,7 @@
     export default class BodyWrap extends Vue {
 
         private created() {
-            this.$router.push({
-                path : '/detectLabel'
-            })
+
         }
         private routeURI : Array<object> = [
             {
