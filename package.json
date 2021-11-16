@@ -8,7 +8,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "aws-sdk": "^2.441.0",
+    "aws-sdk": "^2.814.0",
     "core-js": "^2.6.5",
     "moment": "^2.24.0",
     "vue": "^2.6.10",
